@@ -211,7 +211,11 @@ class _InitialView extends StatelessWidget {
           SizedBox(height: dimens.space4),
           Text(
             '종목을 검색해 보세요',
-            style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
+             style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 24, 
+                fontWeight: AppTypography.bold,
+              ),
           ),
           SizedBox(height: dimens.space2),
           Text(
@@ -238,11 +242,15 @@ class _NoResultView extends StatelessWidget {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Icon(Icons.cancel_outlined, size: 48, color: colors.textDisabled),
+          Icon(Icons.search_off, size: 48, color: colors.textDisabled),
           SizedBox(height: dimens.space4),
           Text(
             '검색 결과가 없습니다',
-            style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
+            style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 24, 
+                fontWeight: AppTypography.bold,
+              ),
           ),
           SizedBox(height: dimens.space2),
           Text(
@@ -362,7 +370,11 @@ class _Toast extends StatelessWidget {
           SizedBox(width: dimens.space2),
           Text(
             message,
-            style: TextStyle(color: colors.textPrimary, fontSize: 14),
+            style: TextStyle(
+              color: colors.textPrimary, 
+              fontSize: 14,
+              fontWeight: AppTypography.bold,
+              ),
           ),
         ],
       ),

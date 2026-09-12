@@ -24,7 +24,10 @@ class _RootScreenState extends State<RootScreen> {
     final AppColors colors = context.colors;
 
    return Scaffold(
-      body: _screens[_currentIndex],
+      body: IndexedStack(
+        index: _currentIndex,
+        children: _screens,
+      ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _currentIndex,
         onTap: (int index) => setState(() => _currentIndex = index),
