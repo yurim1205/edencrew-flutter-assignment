@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import '../models/daily_price.dart';
 import '../services/naver_stock_service.dart';
@@ -72,5 +73,5 @@ class DailyPriceNotifier extends StateNotifier<DailyPriceState> {
 
 final StateNotifierProvider<DailyPriceNotifier, DailyPriceState> dailyPriceProvider =
     StateNotifierProvider<DailyPriceNotifier, DailyPriceState>(
-  (StateNotifierProviderRef<DailyPriceNotifier, DailyPriceState> ref) => DailyPriceNotifier(),
+  (Ref ref) => DailyPriceNotifier(),
 );

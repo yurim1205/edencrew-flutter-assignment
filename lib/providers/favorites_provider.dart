@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 class FavoriteStock {
   const FavoriteStock({required this.symbol, required this.name, required this.typeName});
@@ -20,13 +21,13 @@ class FavoritesNotifier extends StateNotifier<Map<String,FavoriteStock>> {
       state = {...state, stock.symbol: stock};
     }
   }
-  
+
   void remove(String symbol) {
     state = {...state}..remove(symbol);
   }
 }
 
-final StateNotifierProvider<FavoritesNotifier, Set<String>> favoritesProvider =
-    StateNotifierProvider<FavoritesNotifier, Set<String>>(
-  (StateNotifierProviderRef<FavoritesNotifier, Set<String>> ref) => FavoritesNotifier(),
+final StateNotifierProvider<FavoritesNotifier, Map<String, FavoriteStock>> favoritesProvider =
+    StateNotifierProvider<FavoritesNotifier, Map<String, FavoriteStock>>(
+  (Ref ref) => FavoritesNotifier(),
 );

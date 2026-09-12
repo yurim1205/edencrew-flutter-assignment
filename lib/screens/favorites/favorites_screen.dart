@@ -81,7 +81,7 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
         ref.watch(favoritesPricesProvider);
 
     List<FavoriteStock> sortedFavorites = favorites.values.toList();
-    final Map<String, StockRealtimePrice> prices = pricesAsync.valueOrNull ?? {};
+    final Map<String, StockRealtimePrice> prices = pricesAsync.value ?? {};
 
     switch (_sortType) {
       case SortType.name:
