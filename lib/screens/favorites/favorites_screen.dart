@@ -4,10 +4,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/stock_realtime_price.dart';
 import '../../providers/favorites_price_provider.dart';
 import '../../providers/favorites_provider.dart';
+import 'widgets/sort_bottom_sheet.dart';
 
 import '../../theme/theme.dart';
-
-enum SortType { currentPrice, changeRate, name }
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -30,46 +29,12 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
     }
   }
 
-  void _openSortSheet() {
-     final AppColors colors = context.colors;
-    showModalBottomSheet<void>(
-      context: context,
-      backgroundColor: colors.surfaceRaised,
-      builder: (BuildContext context) {
-        return SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              _SortOption(
-                label: '현재가순',
-                selected: _sortType == SortType.currentPrice,
-                onTap: () => setState(() {
-                  _sortType = SortType.currentPrice;
-                  Navigator.pop(context);
-                }),
-              ),
-              _SortOption(
-                label: '등락률순',
-                selected: _sortType == SortType.changeRate,
-                onTap: () => setState(() {
-                  _sortType = SortType.changeRate;
-                  Navigator.pop(context);
-                }),
-              ),
-              _SortOption(
-                label: '가나다순',
-                selected: _sortType == SortType.name,
-                onTap: () => setState(() {
-                  _sortType = SortType.name;
-                  Navigator.pop(context);
-                }),
-              ),
-            ],
-          ),
-        );
-      },
-    );
+Future<void> _openSortSheet() async {
+  final SortType? result = await showSortBottomSheet(context, _sortType);
+  if (result != null) {
+    setState(() => _sortType = result);
   }
+}
 
   @override
   Widget build(BuildContext context) {
@@ -172,29 +137,6 @@ class _FavoritesScreenState extends ConsumerState<FavoritesScreen> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class _SortOption extends StatelessWidget {
-  const _SortOption({required this.label, required this.selected, required this.onTap});
-
-  final String label;
-  final bool selected;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppColors colors = context.colors;
-    final AppDimens dimens = context.dimens;
-
-    return ListTile(
-      onTap: onTap,
-      title: Text(
-        label,
-        style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.regular),
-      ),
-      trailing: selected ? Icon(Icons.check, color: colors.accentDefault, size: dimens.iconMd) : null,
     );
   }
 }
