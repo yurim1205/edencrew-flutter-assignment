@@ -1,23 +1,26 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+class FavoriteStock {
+  const FavoriteStock({required this.symbol, required this.name, required this.typeName});
+  final String symbol;
+  final String name;
+  final String typeName; // "코스피" 등
+}
+
 // 관심종목으로 등록된 종목 코드 집합 (Set이라 중복 걱정 없음)
-class FavoritesNotifier extends StateNotifier<Set<String>> {
-  FavoritesNotifier() : super(<String>{});
+class FavoritesNotifier extends StateNotifier<Map<String,FavoriteStock>> {
+  FavoritesNotifier() : super(<String, FavoriteStock>{});
 
-  bool isFavorite(String symbol) => state.contains(symbol);
+  bool isFavorite(String symbol) => state.containsKey(symbol);
 
-  void toggle(String symbol) {
-    if (state.contains(symbol)) {
-      state = {...state}..remove(symbol);
+  void toggle(FavoriteStock stock) {
+    if (state.containsKey(stock.symbol)) {
+      state = {...state}..remove(stock.symbol);
     } else {
-      state = {...state, symbol};
+      state = {...state, stock.symbol: stock};
     }
   }
-
-  void add(String symbol) {
-    state = {...state, symbol};
-  }
-
+  
   void remove(String symbol) {
     state = {...state}..remove(symbol);
   }
