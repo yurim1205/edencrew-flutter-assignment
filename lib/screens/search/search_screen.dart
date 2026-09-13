@@ -7,6 +7,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../models/stock_search_result.dart';
 import '../../providers/favorites_provider.dart';
 import '../../services/naver_stock_service.dart';
+import '../stock_detail/stock_detail_screen.dart';
 
 final NaverStockService _service = NaverStockService();
 
@@ -138,6 +139,14 @@ class _SearchScreenState extends ConsumerState<SearchScreen> {
           keyword: _keyword,
           isFavorite: isFavorite,
           onTapFavorite: () => _toggleFavorite(result),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (BuildContext context) => StockDetailScreen(symbol: result.code),
+              ),
+            );
+          }
         );
       },
     );
@@ -270,24 +279,29 @@ class _SearchResultTile extends StatelessWidget {
     required this.keyword,
     required this.isFavorite,
     required this.onTapFavorite,
+    required this.onTap,
   });
 
   final StockSearchResult result;
   final String keyword;
   final bool isFavorite;
   final VoidCallback onTapFavorite;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return Container(
-      height: dimens.rowMinHeight,
-      padding: EdgeInsets.symmetric(horizontal: dimens.space5),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: colors.borderSubtle, width: dimens.borderHairline)),
-      ),
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: dimens.rowMinHeight,
+        padding: EdgeInsets.symmetric(horizontal: dimens.space5),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: colors.borderSubtle, width: dimens.borderHairline)),
+        ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -309,9 +323,10 @@ class _SearchResultTile extends StatelessWidget {
               isFavorite ? Icons.star : Icons.star_border,
               color: isFavorite ? colors.favoriteActive : colors.favoriteInactive,
               size: dimens.iconMd,
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

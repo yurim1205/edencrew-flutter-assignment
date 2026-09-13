@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../theme/theme.dart';
 
 import '../../models/stock_realtime_price.dart';
 import '../../providers/favorites_price_provider.dart';
 import '../../providers/favorites_provider.dart';
 import 'widgets/sort_bottom_sheet.dart';
-
-import '../../theme/theme.dart';
+import '../stock_detail/stock_detail_screen.dart';
 
 class FavoritesScreen extends ConsumerStatefulWidget {
   const FavoritesScreen({super.key});
@@ -127,11 +127,22 @@ Future<void> _openSortSheet() async {
                   ? const _EmptyView()
                   : ListView.builder(
                       itemCount: sortedFavorites.length,
-                      itemBuilder: (BuildContext context, int index) {
+                     itemBuilder: (BuildContext context, int index) {
                         final FavoriteStock stock = sortedFavorites[index];
                         final StockRealtimePrice? price = prices[stock.symbol];
-                        return _FavoriteStockTile(stock: stock, price: price);
-                      },
+                        return _FavoriteStockTile(
+                            stock: stock,
+                            price: price,
+                            onTap: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                builder: (BuildContext context) => StockDetailScreen(symbol: stock.symbol),
+                                ),
+                            );
+                            },
+                        );
+                        },
                     ),
             ),
           ],
@@ -157,7 +168,11 @@ class _EmptyView extends StatelessWidget {
           SizedBox(height: dimens.space4),
           Text(
             '관심 종목이 없습니다',
-            style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
+            style: TextStyle(
+                color: colors.textSecondary,
+                fontSize: 24, 
+                fontWeight: AppTypography.bold,
+              ),
           ),
           SizedBox(height: dimens.space2),
           Text(
@@ -172,59 +187,64 @@ class _EmptyView extends StatelessWidget {
 }
 
 class _FavoriteStockTile extends StatelessWidget {
-  const _FavoriteStockTile({required this.stock, required this.price});
+  const _FavoriteStockTile({required this.stock, required this.price, required this.onTap});
 
   final FavoriteStock stock;
   final StockRealtimePrice? price;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return Container(
-      height: dimens.rowMinHeight,
-      padding: EdgeInsets.symmetric(horizontal: dimens.space5),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: colors.borderSubtle, width: dimens.borderHairline)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: <Widget>[
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(
-                stock.name,
-                style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
-              ),
-              SizedBox(height: dimens.space1),
-              Text(
-                '${stock.symbol} · ${stock.typeName}',
-                style: TextStyle(color: colors.textTertiary, fontSize: 12),
-              ),
-            ],
-          ),
-          price == null
-              ? _SkeletonBox(colors: colors)
-              : Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: <Widget>[
-                    Text(
-                      _formatPrice(price!.currentPrice),
-                      style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
-                    ),
-                    SizedBox(height: dimens.space1),
-                    Text(
-                      _formatChange(price!),
-                      style: TextStyle(
-                        color: _directionColor(price!.direction, colors),
-                        fontSize: 12,
-                      ),
-                    ),
-                  ],
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: dimens.rowMinHeight,
+        padding: EdgeInsets.symmetric(horizontal: dimens.space5),
+        decoration: BoxDecoration(
+          border: Border(bottom: BorderSide(color: colors.borderSubtle, width: dimens.borderHairline)),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: <Widget>[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  stock.name,
+                  style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
                 ),
-        ],
+                SizedBox(height: dimens.space1),
+                Text(
+                  '${stock.symbol} · ${stock.typeName}',
+                  style: TextStyle(color: colors.textTertiary, fontSize: 12),
+                ),
+              ],
+            ),
+            price == null
+                ? _SkeletonBox(colors: colors)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: <Widget>[
+                      Text(
+                        _formatPrice(price!.currentPrice),
+                        style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
+                      ),
+                      SizedBox(height: dimens.space1),
+                      Text(
+                        _formatChange(price!),
+                        style: TextStyle(
+                          color: _directionColor(price!.direction, colors),
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+          ],
+        ),
       ),
     );
   }
