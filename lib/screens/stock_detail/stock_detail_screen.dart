@@ -7,6 +7,7 @@ import '../../providers/favorites_provider.dart';
 import '../../services/naver_stock_service.dart';
 import '../../theme/theme.dart';
 import 'widgets/stock_detail_header.dart';
+import 'widgets/current_price_section.dart';  
 
 final NaverStockService _service = NaverStockService();
 
@@ -101,10 +102,13 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
     }
 
   Widget _buildContent(AppColors colors, bool isFavorite) {
-    return Center(
-      child: Text(
-        '${_meta!.stockName} 상세 화면 작업 예정',
-        style: TextStyle(color: colors.textPrimary),
+     return SingleChildScrollView(
+        child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+            if (_price != null) CurrentPriceSection(price: _price!),
+            // 다음 단계(기간탭, 차트 등)에서 계속 추가할 예정
+        ],
       ),
     );
   }
