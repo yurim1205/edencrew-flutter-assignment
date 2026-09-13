@@ -17,5 +17,13 @@ abstract final class NumberFormatter {
   static String marketCapInJo(int value) {
     final int jo = value ~/ 1000000000000;
     return '${comma(jo)}조';
-  }
+  } 
+
+  // "20260911" -> "09.11"
+  static String dateMMDD(String yyyymmdd) {
+    if (yyyymmdd.length != 8) return yyyymmdd;
+    final String mm = yyyymmdd.substring(4, 6);
+    final String dd = yyyymmdd.substring(6, 8);
+    return '$mm.$dd';
+   }
 }

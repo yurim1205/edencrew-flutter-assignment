@@ -12,6 +12,7 @@ import '../../models/daily_price.dart';
 import '../../providers/daily_price_provider.dart';
 import 'widgets/period_tabs.dart';
 import 'widgets/price_summary_section.dart';
+import 'widgets/daily_price_table.dart';
 
 final NaverStockService _service = NaverStockService();
 
@@ -143,6 +144,7 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
                 child: Center(child: CircularProgressIndicator()),
             ),
             if (_price != null) PriceSummarySection(price: _price!),
+            if (_dailyPrices.isNotEmpty) DailyPriceTable(prices: _dailyPrices),
         ],
       ),
     );
