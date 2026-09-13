@@ -23,7 +23,9 @@ class StockDetailHeader extends StatelessWidget {
     final AppColors colors = context.colors;
     final AppDimens dimens = context.dimens;
 
-    return Padding(
+    return Column(
+           children: <Widget>[ 
+               Padding(
       padding: EdgeInsets.fromLTRB(dimens.space2, dimens.space2, dimens.space5, dimens.space2),
       child: Row(
         children: <Widget>[
@@ -60,6 +62,12 @@ class StockDetailHeader extends StatelessWidget {
           ),
         ],
       ),
+    ),
+    Container( 
+        height: dimens.borderHairline,
+        color: colors.borderSubtle,
+      ),
+    ],
     );
   }
 }
