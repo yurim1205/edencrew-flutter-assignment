@@ -6,6 +6,7 @@ import '../../models/stock_realtime_price.dart';
 import '../../providers/favorites_provider.dart';
 import '../../services/naver_stock_service.dart';
 import '../../theme/theme.dart';
+import 'widgets/stock_detail_header.dart';
 
 final NaverStockService _service = NaverStockService();
 
@@ -59,14 +60,45 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
     return Scaffold(
       backgroundColor: colors.surfaceBase,
       body: SafeArea(
-        child: _loading
-            ? const Center(child: CircularProgressIndicator())
-            : _error != null
-                ? Center(child: Text(_error!, style: TextStyle(color: colors.textSecondary)))
-                : _buildContent(colors, isFavorite),
-      ),
-    );
-  }
+        child: Column(
+            children: <Widget>[
+            if (_meta != null)
+              StockDetailHeader(
+                stockName: _meta!.stockName,
+                symbol: _meta!.symbolCode,
+                typeName: _meta!.stockExchangeNameKor,
+                isFavorite: isFavorite,
+                onTapFavorite: () {
+                  ref.read(favoritesProvider.notifier).toggle(
+                        FavoriteStock(
+                          symbol: _meta!.symbolCode,
+                          name: _meta!.stockName,
+                          typeName: _meta!.stockExchangeNameKor,
+                        ),
+                      );
+                  },
+              )
+            else
+              Row(
+                children: <Widget>[
+                  IconButton(
+                    icon: Icon(Icons.arrow_back, color: colors.textSecondary),
+                    onPressed: () => Navigator.pop(context),
+                  ),
+                ],
+              ),
+              Expanded(
+                 child: _loading
+                  ? const Center(child: CircularProgressIndicator())
+                  : _error != null
+                      ? Center(child: Text(_error!, style: TextStyle(color: colors.textSecondary)))
+                      : _buildContent(colors, isFavorite),
+                    ),
+                   ],      
+                ),
+            ),
+        );
+    }
 
   Widget _buildContent(AppColors colors, bool isFavorite) {
     return Center(
