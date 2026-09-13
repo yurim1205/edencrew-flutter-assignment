@@ -290,6 +290,7 @@ class _SearchResultTile extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
