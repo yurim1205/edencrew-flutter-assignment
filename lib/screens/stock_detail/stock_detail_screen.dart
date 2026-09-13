@@ -8,6 +8,10 @@ import '../../services/naver_stock_service.dart';
 import '../../theme/theme.dart';
 import 'widgets/stock_detail_header.dart';
 import 'widgets/current_price_section.dart';  
+import '../../models/daily_price.dart';
+import '../../providers/daily_price_provider.dart';
+import 'widgets/period_tabs.dart';
+import 'widgets/price_summary_section.dart';
 
 final NaverStockService _service = NaverStockService();
 
@@ -26,6 +30,10 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
   bool _loading = true;
   String? _error;
 
+  PricePeriod _selectedPeriod = PricePeriod.oneMonth;
+  List<DailyPrice> _dailyPrices = [];
+  bool _chartLoading = false;
+
   @override
   void initState() {
     super.initState();
@@ -43,6 +51,8 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
         _price = prices[widget.symbol];
         _loading = false;
       });
+
+      _loadDailyPrices(_selectedPeriod);
     } catch (e) {
       if (!mounted) return;
       setState(() {
@@ -50,6 +60,25 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
         _loading = false;
       });
     }
+  }
+
+   Future<void> _loadDailyPrices(PricePeriod period) async {
+    setState(() => _chartLoading = true);
+
+    final List<DailyPrice> prices = await ref
+        .read(dailyPriceProvider.notifier)
+        .getPricesUpToPage(widget.symbol, period.requiredPage);
+
+    if (!mounted) return;
+    setState(() {
+      _dailyPrices = prices;
+      _chartLoading = false;
+    });
+  }
+
+    void _onPeriodChanged(PricePeriod period) {
+    setState(() => _selectedPeriod = period);
+    _loadDailyPrices(period);
   }
 
   @override
@@ -107,7 +136,13 @@ class _StockDetailScreenState extends ConsumerState<StockDetailScreen> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
             if (_price != null) CurrentPriceSection(price: _price!),
-            // 다음 단계(기간탭, 차트 등)에서 계속 추가할 예정
+            PeriodTabs(selected: _selectedPeriod, onChanged: _onPeriodChanged),
+            if (_chartLoading)
+            const Padding(
+                padding: EdgeInsets.all(32),
+                child: Center(child: CircularProgressIndicator()),
+            ),
+            if (_price != null) PriceSummarySection(price: _price!),
         ],
       ),
     );
