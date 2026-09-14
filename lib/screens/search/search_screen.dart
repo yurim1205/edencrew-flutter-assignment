@@ -339,11 +339,15 @@ class _SearchResultTile extends StatelessWidget {
     if (keyword.isEmpty || index == -1) {
       return Text(
         name,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis, 
         style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
       );
     }
 
     return RichText(
+      maxLines: 1, 
+      overflow: TextOverflow.ellipsis, 
       text: TextSpan(
         style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
         children: <TextSpan>[

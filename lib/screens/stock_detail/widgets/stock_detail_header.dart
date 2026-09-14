@@ -39,6 +39,8 @@ class StockDetailHeader extends StatelessWidget {
               children: <Widget>[
                 Text(
                   stockName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(
                     color: colors.textPrimary,
                     fontSize: 18,

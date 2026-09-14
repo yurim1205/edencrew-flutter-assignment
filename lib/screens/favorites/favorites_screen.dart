@@ -215,6 +215,8 @@ class _FavoriteStockTile extends StatelessWidget {
               children: <Widget>[
                 Text(
                   stock.name,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                   style: TextStyle(color: colors.textPrimary, fontSize: 16, fontWeight: AppTypography.medium),
                 ),
                 SizedBox(height: dimens.space1),
