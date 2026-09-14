@@ -1,117 +1,96 @@
-# Flutter 신입 개발자 과제
+# Flutter 신입 개발자 과제 — 이유림
 
-국내 주식 관심종목 앱의 화면 3개를 **Flutter 코드**로 구현하고, 그중 한 화면을 저희 플랫폼 **Lucy Studio**로 다시 만드는 과제입니다. 전체 기간은 4일입니다.
-
-이 문서는 저장소를 실행하고 디자인 토큰을 쓰는 방법만 다룹니다. **과제 요구사항은 아래 문서에 있습니다.**
-
-| 문서 | 내용 |
-| --- | --- |
-| [`docs/ASSIGNMENT.md`](docs/ASSIGNMENT.md) | 화면별 요구사항, 평가 기준, 제출 방법 |
-| [`docs/NAVER_API.md`](docs/NAVER_API.md) | Naver 데이터 연동 가이드 (endpoint 4개) |
-
-**Figma 시안 링크는 안내 메일에 담겨 있습니다.** 시안의 `Screens` 페이지에는 화면 3개 외에 빈 상태 · 정렬 · 토스트처럼 같은 화면의 다른 상태를 그린 프레임과, 토큰 확인용 `Design Tokens — Dark` 프레임이 함께 있습니다. 어떤 프레임이 무엇인지는 [`docs/ASSIGNMENT.md`의 대상 화면](docs/ASSIGNMENT.md#대상-화면)에 정리해 두었습니다.
-
-AI 도구를 활용해도 괜찮습니다. 다만 이후 기술 면접에서 구현 내용을 구체적으로 질문할 예정이니, 직접 작성한 코드라고 설명할 수 있을 정도로 이해하고 계셔야 합니다.
+국내 주식 관심종목 앱의 화면 3개를 Flutter로 구현하고, `목표가 알림` 화면을 Lucy Studio로 구현한 과제입니다.
 
 ---
 
-## 실행하기
+## 실행 방법
 
-이 저장소를 그대로 사용하면 됩니다. 별도로 프로젝트를 만들지 않아도 됩니다.
-
-```bash
-flutter pub get
-flutter run
-```
-
-모든 플랫폼으로 실행할 수 있게 만들어져 있습니다. 다만 아래 두 가지를 주의해 주세요.
-
-- **웹(Chrome)에서는 동작하지 않습니다.** Naver endpoint가 CORS를 허용하지 않아 브라우저에서는 요청이 막힙니다. IDE 기본 실행 대상이 Chrome으로 잡혀 있는 경우가 많으니 실행 대상을 바꿔 주세요.
-- **모바일 기기나 에뮬레이터, 또는 Figma 프레임에 가까운 창 크기에서 확인해 주세요.** 데스크톱에서 창을 크게 띄우고 비교하면 의미가 없습니다.
-
-macOS 데스크톱으로 확인하실 경우 네트워크 요청에 entitlement가 필요합니다. debug 실행은 기본 설정으로 동작합니다.
+- Flutter 버전: `Flutter 3.47.3`
+- 실행 명령:
+  ```bash
+  flutter pub get
+  flutter run
+  ```
+- 확인한 플랫폼과 기기: `iOS 시뮬레이터 (iPhone 15)`
+- 폰트 처리 방식: `기본 제공 그대로 사용`
 
 ---
 
-## 저장소 구성
+## 구현 범위
 
-`flutter create` 직후의 기본 템플릿에 **디자인 토큰과 폰트만 미리 준비해 둔 상태**입니다.
+### 완료한 필수 항목
 
-```text
-docs/
-  ASSIGNMENT.md           과제 요구사항 · 평가 기준 · 제출 방법
-  NAVER_API.md            Naver 데이터 연동 가이드
-lib/
-  main.dart               앱 진입점. 시작용 화면이 들어 있습니다
-  theme/
-    README.md             Figma 변수 ↔ Dart 필드 대응표
-    app_palette.dart      원시 팔레트 (Figma Primitives)
-    app_colors.dart       시맨틱 색상 토큰 (Figma Semantic / Dark)
-    app_dimens.dart       간격 · 반경 · 크기 토큰 (Figma Scale)
-    app_typography.dart   서체 · 굵기 토큰 (Figma Typography)
-    app_theme.dart        ThemeData 조립 + context 확장
-    theme.dart            barrel
-assets/
-  fonts/                  Noto Sans KR (등록까지 마쳐둔 상태입니다)
-  mock/                   응답 샘플을 저장해 쓰실 위치입니다
-```
+- 관심 화면 (`01 · 관심`)
+  — 관심종목 목록 표시 (종목명, 종목코드·시장, 현재가, 등락액/등락률)
+  - 등락에 따른 색상 구분
+  - 관심종목 없음(empty) 상태
+  - 정렬 기능 (현재가순 / 등락률순 / 가나다순), 별도 바텀시트 컴포넌트로 분리
+  - 관심종목 여러 개를 한 번의 API 요청으로 조회 (실시간 시세 요청 최소화)
+  - 관심종목 스켈레톤 UI (시세 미수신 종목 처리)
+  - 새로고침으로 실시간 시세 재조회
+- 검색 화면 (`02 · 검색`)
+  - 검색 전(초기), 검색 결과 없음 상태
+  - 검색 화면에서 관심 등록/해제 → 관심 화면에 실시간으로 동기화 반영
+  - 관심 등록/해제 시 토스트 메시지 표시
+  - 두 화면 모두 종목 탭 시 종목상세 화면으로 이동
+  - 탭 전환(관심 ↔ 검색) 시에도 각 화면의 상태(검색어, 결과, 정렬 등) 유지
+- 종목상세 화면 (`03 · 종목상세`)
+  - 헤더 (뒤로가기, 종목명, 종목코드·시장, 관심 등록 버튼)
+  - 현재가 + 전일 대비 등락 (방향 아이콘 포함)
+  - 기간 탭 (1개월/3개월/6개월/1년) — 선택 시 차트·일별시세 갱신
+  - 요약 카드 (시가/고가/저가/거래량/시가총액, 거래량·시가총액은 천/조 단위 축약)
+  - 일별 시세 표 (날짜 MM.DD, 종가, 등락(부호+색상), 거래량)
+  - 캔들 차트 (`candlesticks` 패키지, 상승/하락 색상 토큰 매핑)
+- 상태 동기화 (관심 등록/해제가 관심·검색·상세 화면에서 일관되게 반영)
 
-`lib/` 아래 나머지 구조는 없습니다. **폴더 구조와 아키텍처는 직접 설계해 주세요.**
+### 남은 것 / 미완성
 
-`lib/main.dart`의 `StartHereScreen`은 토큰 사용 예시를 겸한 임시 화면입니다. 지우고 직접 구현한 화면으로 바꿔 주세요.
+- Lucy Studio 과제2(`목표가 알림`): 화면 UI(헤더, 빈 상태, 등록된 목록, 등록 다이얼로그)는 구현했으나, `+` 버튼 클릭 시 다이얼로그를 열고 등록 시 리스트에 실제로 추가되는 **스크립트 로직 연결은 시간 부족으로 미완성**입니다.
+- 과제 1의 세세한 css 수정이 미흡한 상태입니다.
+
+### 추가로 구현한 선택 항목
+
+- 검색 화면 : 입력 디바운스 처리
+- 정렬 바텀시트를 별도 컴포넌트로 분리
+---
+
+## 기술 선택과 이유
+
+- **상태관리**: Riverpod (`flutter_riverpod`) 사용. `StateNotifierProvider` 패턴으로 일별 시세 캐시(`DailyPriceNotifier`)를 관리해, 이미 받아온 페이지는 재요청하지 않도록 구성했습니다.
+- **폴더 구조**: `lib/screens`(화면별 위젯), `lib/models`, `lib/providers`, `lib/services`, `lib/theme`로 계층을 나눴습니다. `screens/<화면>/widgets/`에 화면 전용 위젯을 모아 재사용 범위를 명확히 했습니다.
+- **주요 패키지**: `flutter_riverpod`(상태관리), `http`(네트워크), `html` + `charset_converter`(네이버 일별시세 HTML 파싱, EUC-KR 디코딩), `candlesticks`(캔들 차트)
+- **차트 처리 방식**: `candlesticks` 패키지를 사용했습니다. 남은 시간 대비 필수 요건(상승/하락 색상 매칭)을 빠르게 충족할 수 있는 패키지를 선택했습니다. 대신 캔들 두께·간격은 패키지 자체 레이아웃을 따르며 시안보다 넓고 성기게 표시됩니다. 축 라벨, 현재가 배지, 거래량 바, 스케일(A/L) 버튼 등 패키지가 자체 제공하는 부가 UI는 시안에 없는 요소라 색상을 투명 처리해 시각적으로 숨겼습니다.
+- **디자인 토큰 추가**: 제공된 토큰만 사용했고 추가하지 않았습니다.
+---
+
+## 직접 판단한 부분과 이유
+
+- **거래량·시가총액 축약 표기**: 반올림이 아닌 정수 나눗셈(버림) 방식으로 천/조 단위를 계산했습니다. (예: 29,113,466 → `29,113천`)
+- **캔들차트 부가 UI 숨김**: `candlesticks` 패키지가 기본 제공하는 축 라벨·현재가 배지·거래량 바·스케일 버튼은 시안에 없는 요소라, 패키지에 boolean으로 끄는 옵션이 없어 색상을 배경과 동일하게(투명) 처리해 시각적으로만 숨겼습니다.
+- **토스트 노출 시간과 사라지는 방식**: 2초 노출 후 자동으로 사라지도록 구현했습니다. 별도의 애니메이션 없이 상태값을 null로 바꿔 즉시 제거되며, 사용자가 다른 종목의 관심 등록/해제를 연속으로 시도할 경우 기존 타이머를 취소하고 새로 시작하도록 처리했습니다.
+- **로딩 / 네트워크 에러 / 긴 종목명 오버플로 처리**:
+  - 로딩: 종목상세 화면에 CircularProgressIndicator 적용,
+  - 에러: try-catch로 API 실패 시 "데이터를 불러오지 못했습니다" 텍스트 표시,
+  - 긴 종목명 오버플로 처리: 화면의 종목명 텍스트에 `maxLines: 1`, `TextOverflow.ellipsis`를 적용했습니다.
+- **시세를 못 받은 행이 있을 때의 정렬 처리**: 현재가순/등락률순 정렬 시, 시세를 아직 못 받은 종목은 비교 대상에서 제외(순서 변경 없음)하도록 처리했습니다.
+- **Figma와 다르게 구현한 부분**: 캔들차트의 UI를 패키지로 구현했기 때문에 시안과 많이 달라졌지만, 렌더링 기능에는 문제가 없는 걸 확인했습니다.
 
 ---
 
-## 디자인 토큰
+## 막혔던 지점과 어떻게 접근했는지
 
-색상은 `ThemeExtension`으로 정의되어 있습니다. `AppTheme.dark`가 `MaterialApp`에 이미 연결되어 있으니 `context`로 꺼내 쓰시면 됩니다.
+**1. 시뮬레이터 화면 크기 불일치**
+처음 iOS 시뮬레이터를 실행했을 때 임의의 커스텀 기종("test")으로 되어 있어, Figma 시안 기준 프레임 사이즈(393×852)와 일치하지 않았습니다. `xcrun simctl list devicetypes`로 사용 가능한 기종을 확인한 뒤, 정확히 393×852 해상도를 가진 iPhone 15 시뮬레이터를 새로 생성해 해결했습니다.
 
-```dart
-MaterialApp(
-  theme: AppTheme.dark,
-  home: const WatchlistScreen(),
-)
-```
+**2. Naver API 인코딩 문제**
+일별 시세(`sise_day.naver`) API 응답이 EUC-KR로 인코딩되어 있어, 기본 UTF-8 디코딩 시 한글이 깨지는 문제가 있었습니다. `charset_converter` 패키지로 원본 바이트를 EUC-KR로 명시적으로 디코딩해 해결했습니다. 또한 curl로 최초 요청 시 User-Agent 헤더가 없어 404 에러 페이지가 반환되는 문제도 겪었는데, 브라우저 User-Agent를 추가해 해결했습니다.
 
-```dart
-Text(
-  '삼성전자',
-  style: TextStyle(color: context.colors.textPrimary),
-)
+**3. Riverpod 3.x 마이그레이션 이슈**
+설치된 `flutter_riverpod`가 3.x 버전이었는데, 이 버전에서 `StateNotifier`/`StateNotifierProvider`가 legacy API로 분리되고, `StateNotifierProviderRef` 등 개별 Ref 타입이 통합된 `Ref`로 변경되었으며, `AsyncValue.valueOrNull`이 제거된 것을 모른 채 이전 버전 문법으로 코드를 작성해 여러 컴파일 에러가 발생했습니다. `flutter_riverpod/legacy.dart` import 추가, 모든 개별 Ref 타입을 `Ref`로 통일, `.valueOrNull`을 `.value`로 변경해 해결했습니다.
 
-Container(
-  padding: EdgeInsets.symmetric(horizontal: context.dimens.space4),
-  decoration: BoxDecoration(
-    color: context.colors.surfaceRaised,
-    borderRadius: BorderRadius.circular(context.dimens.radiusMd),
-  ),
-)
-```
+**4. 탭 전환 시 화면 상태 초기화**
+관심 탭에서 검색 탭으로 이동했다가 다시 돌아오면 검색어와 검색 결과가 초기화되는 문제가 있었습니다. `RootScreen`에서 탭 전환 시 위젯을 배열 인덱싱(`_screens[_currentIndex]`)으로 새로 생성하고 있었기 때문으로, `IndexedStack`으로 변경해 두 화면이 항상 메모리에 유지되도록하여 해결했습니다.
 
-지켜 주셔야 할 것:
-
-- **토큰 값을 수정하지 마세요.** 색상 hex를 화면 코드에 직접 쓰거나 `AppPalette`를 화면에서 바로 참조하지 말고, 항상 `context.colors.*` 시맨틱 토큰을 쓰세요. (필수)
-- 필요한 토큰이 없다고 판단되면 추가해도 됩니다. 다만 왜 추가했는지 메모에 적어 주세요.
-- **글자 크기와 행간은 토큰으로 정의되어 있지 않습니다.** Figma는 서체와 굵기만 변수로 관리하고 있어서, 크기는 각 화면의 텍스트 레이어에서 직접 확인해 주세요.
-
-Figma 변수명과 Dart 필드명, 원시값, hex는 [`lib/theme/README.md`](lib/theme/README.md)에 1:1로 정리해 두었습니다. Figma에서 본 색이 코드의 어느 필드인지 헷갈릴 때 그 표를 보시면 됩니다.
-
-### 폰트
-
-`Noto Sans KR`을 사용합니다. 폰트 파일과 `pubspec.yaml` 등록은 **미리 해두었으니 따로 작업하지 않으셔도 됩니다.**
-
-`assets/fonts/`에 Regular / Medium / Bold 세 가지 굵기가 들어 있고, `AppTypography.fontFamily`(`'NotoSansKR'`)와 같은 이름으로 등록되어 있습니다. `AppTheme.dark`가 이 family를 기본 서체로 잡아둡니다.
-
-다른 방식(예: `google_fonts` 패키지)으로 바꾸셔도 무방합니다. 바꾸셨다면 메모에 적어 주세요.
-
----
-
-## 이 README에 대해
-
-제출 시 이 문서는 **본인 프로젝트의 README로 덮어써 주세요.** 작성할 내용은 [`docs/ASSIGNMENT.md`의 제출 방법](docs/ASSIGNMENT.md#제출-방법)에 정리되어 있습니다. `docs/` 아래 문서는 남겨 두시면 됩니다.
-
-## 라이선스
-
-이 저장소는 이든크루 채용 과제의 스타터 템플릿으로만 제공됩니다. 과제 수행을 위해 복제하고 수정하는 것은 괜찮습니다. 다만 그 범위를 넘어선 재배포나 상업적 이용은 Edencrew의 명시적인 허가 없이 허용되지 않습니다. 자세한 내용은 루트의 `LICENSE` 파일을 확인해 주세요.
-
-**별도로 전달드린 Figma 시안과 Lucy Studio 설치 파일은 외부에 공유하지 말아주세요.**
+**5. (미해결) 검색 결과 리스트 항목의 미세한 정렬 어긋남**
+검색 결과 리스트에서 항목이 아래로 갈수록 미세하게 오른쪽으로 밀려 보이는 시각적 이슈를 발견했습니다. `Row`에 `crossAxisAlignment: CrossAxisAlignment.center`를 명시적으로 추가해봤지만 완전히 해결되지 않았고, 시간 관계상 원인을 파악하지 못한 채 제출합니다. 렌더링 자체에 기능적인 영향은 없는 것으로 확인했습니다.
