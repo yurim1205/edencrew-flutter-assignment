@@ -18,8 +18,9 @@ class CurrentPriceSection extends StatelessWidget {
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dimens.space5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.baseline,
+        textBaseline: TextBaseline.alphabetic,
         children: <Widget>[
           Text(
             _formatNumber(price.currentPrice),
@@ -29,12 +30,9 @@ class CurrentPriceSection extends StatelessWidget {
               fontWeight: AppTypography.bold,
             ),
           ),
-          SizedBox(height: dimens.space1),
-          Row(
-            children: <Widget>[
+          SizedBox(width: dimens.space3),
               if (directionIcon != null)
-                Icon(directionIcon, size: dimens.iconSm, color: directionColor),
-              if (directionIcon != null) SizedBox(width: dimens.space1),
+                Icon(directionIcon, size: 24, color: directionColor),
               Text(
                 '${_formatNumber(price.changeAmount.abs())} (${price.changeRate.abs().toStringAsFixed(2)}%)',
                 style: TextStyle(
@@ -43,8 +41,6 @@ class CurrentPriceSection extends StatelessWidget {
                   fontWeight: AppTypography.medium,
                 ),
               ),
-            ],
-          ),
         ],
       ),
     );
